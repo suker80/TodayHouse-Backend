@@ -32,7 +32,7 @@ public class InquiryController {
     public BaseResponse<Long> saveInquiry(@Valid @RequestBody InquirySaveRequest request) {
         Inquiry inquiryRequest = Inquiry.builder().isSecret(request.getIsSecret()).content(request.getContent()).category(request.getCategory()).build();
         Inquiry inquiry = inquiryService.saveInquiry(inquiryRequest, request.getProductId());
-        return new BaseResponse(inquiry.getId());
+        return new BaseResponse<>(inquiry.getId());
     }
 
     @GetMapping
@@ -41,11 +41,11 @@ public class InquiryController {
         Long myId = myUser == null ? null : myUser.getId();
         Page<Inquiry> inquiries = inquiryService.findAllInquiries(request, pageable);
         PageDto<InquiryResponse> inquiryResponse = new PageDto<>(inquiries.map(inquiry -> new InquiryResponse(inquiry, myId)));
-        return new BaseResponse(inquiryResponse);
+        return new BaseResponse<>(inquiryResponse);
     }
 
     @DeleteMapping("/{inquiryId}")
-    public BaseResponse deleteInquiry(@PathVariable Long inquiryId) {
+    public BaseResponse<String> deleteInquiry(@PathVariable Long inquiryId) {
         inquiryService.deleteInquiry(inquiryId);
         return new BaseResponse<>("삭제되었습니다.");
     }
@@ -55,13 +55,13 @@ public class InquiryController {
         String sellerName = getUser().getNickname();
         Answer answer = Answer.builder().content(request.getContent()).name(sellerName).build();
         Answer save = answerService.saveAnswer(answer, request.getProductId(), request.getInquiryId());
-        return new BaseResponse(save.getId());
+        return new BaseResponse<>(save.getId());
     }
 
     @DeleteMapping("/answer/{answerId}")
-    public BaseResponse<Long> deleteAnswer(@PathVariable Long answerId, @RequestParam("productId") Long productId) {
+    public BaseResponse<String> deleteAnswer(@PathVariable Long answerId, @RequestParam("productId") Long productId) {
         answerService.deleteAnswer(answerId, productId);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 
     private User getUser() {

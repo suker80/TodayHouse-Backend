@@ -2,7 +2,6 @@ package com.todayhouse.domain.email.dto.response;
 
 import com.todayhouse.domain.email.domain.EmailVerificationToken;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

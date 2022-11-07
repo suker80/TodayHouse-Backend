@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,30 +37,30 @@ public class ProductController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public BaseResponse<Long> saveProduct(@RequestPart(value = "file", required = false) List<MultipartFile> multipartFiles,
+    public BaseResponse<Map<String, Long>> saveProduct(@RequestPart(value = "file", required = false) List<MultipartFile> multipartFiles,
                                           @RequestPart(value = "request") @Valid ProductSaveRequest request) {
         Long productId = productService.saveProductRequest(multipartFiles, request);
-        return new BaseResponse(Collections.singletonMap("productId", productId));
+        return new BaseResponse<>(Collections.singletonMap("productId", productId));
     }
 
     @PostMapping("/images")
-    public BaseResponse<Long> saveImages(@RequestPart(value = "file", required = false) List<MultipartFile> multipartFiles,
-                                         @RequestPart(value = "request") @Valid ProductImageSaveRequest request) {
+    public BaseResponse<Map<String, Long>> saveImages(@RequestPart(value = "file", required = false) List<MultipartFile> multipartFiles,
+                                                        @RequestPart(value = "request") @Valid ProductImageSaveRequest request) {
         Long productId = productService.saveProductImages(multipartFiles, request.getProductId());
-        return new BaseResponse(Collections.singletonMap("productId", productId));
+        return new BaseResponse<>(Collections.singletonMap("productId", productId));
     }
 
     //?page=0&size=4&sort=price,DESC&sort=id,DESC 형식으로 작성
     //ProductSearchRequest은 선택사항
     @GetMapping
-    public BaseResponse findProductsPaging(@ModelAttribute ProductSearchRequest productSearch,
-                                           Pageable pageable) {
+    public BaseResponse<PageDto<ProductResponse>> findProductsPaging(@ModelAttribute ProductSearchRequest productSearch,
+                                                                     Pageable pageable) {
         Page<ProductResponse> products = productService.findAllWithSeller(productSearch, pageable);
-        return new BaseResponse(new PageDto<>(products));
+        return new BaseResponse<>(new PageDto<>(products));
     }
 
     @GetMapping("/{id}")
-    public BaseResponse findProductWithImages(@PathVariable Long id) {
+    public BaseResponse<ProductResponse> findProductWithImages(@PathVariable Long id) {
         Product product = productService.findByIdWithOptionsAndSeller(id);
 
         List<String> imageUrls = imageService.findProductImageFileNamesByProductId(id).stream().
@@ -70,24 +71,24 @@ public class ProductController {
         List<Category> categoryPath = categoryService.findRootPath(product.getCategory().getName());
         categoryPath.forEach(c -> response.addCategoryPath(c.getName()));
 
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     @PutMapping
-    public BaseResponse updateProduct(@Valid @RequestBody ProductUpdateRequest request) {
+    public BaseResponse<ProductResponse> updateProduct(@Valid @RequestBody ProductUpdateRequest request) {
         Product product = productService.updateProduct(request);
-        return new BaseResponse(new ProductResponse(product));
+        return new BaseResponse<>(new ProductResponse(product));
     }
 
     @DeleteMapping("/{id}")
-    public BaseResponse deleteProduct(@PathVariable Long id) {
+    public BaseResponse<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 
     @DeleteMapping("/images/{file}")
-    public BaseResponse deleteProductImage(@PathVariable String file) {
+    public BaseResponse<String> deleteProductImage(@PathVariable String file) {
         imageService.deleteProductImages(List.of(file));
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 }

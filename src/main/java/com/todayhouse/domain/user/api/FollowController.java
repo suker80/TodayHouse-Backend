@@ -18,43 +18,43 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping
-    public BaseResponse saveFollow(@Valid @RequestBody FollowRequest request) {
+    public BaseResponse<Long> saveFollow(@Valid @RequestBody FollowRequest request) {
         Follow follow = followService.saveFollow(request.getFromId(), request.getToId());
-        return new BaseResponse(follow.getId());
+        return new BaseResponse<>(follow.getId());
     }
 
     @DeleteMapping
-    public BaseResponse deleteFollow(@RequestParam Long fromId, @RequestParam Long toId) {
+    public BaseResponse<String> deleteFollow(@RequestParam Long fromId, @RequestParam Long toId) {
         followService.deleteFollow(fromId, toId);
-        return new BaseResponse("팔로우가 해제되었습니다.");
+        return new BaseResponse<>("팔로우가 해제되었습니다.");
     }
 
     @GetMapping("/followers/count/{id}")
-    public BaseResponse countFollowers(@PathVariable Long id) {
+    public BaseResponse<Long> countFollowers(@PathVariable Long id) {
         long count = followService.countFollowers(id);
-        return new BaseResponse(count);
+        return new BaseResponse<>(count);
     }
 
     @GetMapping("/followings/count/{id}")
-    public BaseResponse countFollowings(@PathVariable Long id) {
+    public BaseResponse<Long> countFollowings(@PathVariable Long id) {
         long count = followService.countFollowings(id);
-        return new BaseResponse(count);
+        return new BaseResponse<>(count);
     }
 
     @GetMapping("/followers/{id}")
-    public BaseResponse findFollowers(@PathVariable Long id) {
+    public BaseResponse<Set<SimpleUser>> findFollowers(@PathVariable Long id) {
         Set<SimpleUser> followers = followService.findFollowers(id);
-        return new BaseResponse(followers);
+        return new BaseResponse<>(followers);
     }
 
     @GetMapping("/followings/{id}")
-    public BaseResponse findFollowings(@PathVariable Long id) {
+    public BaseResponse<Set<SimpleUser>> findFollowings(@PathVariable Long id) {
         Set<SimpleUser> followings = followService.findFollowings(id);
-        return new BaseResponse(followings);
+        return new BaseResponse<>(followings);
     }
 
     @GetMapping
-    public BaseResponse isFollowing(@RequestParam Long fromId, @RequestParam Long toId) {
-        return new BaseResponse(followService.isFollowing(fromId, toId));
+    public BaseResponse<Boolean> isFollowing(@RequestParam Long fromId, @RequestParam Long toId) {
+        return new BaseResponse<>(followService.isFollowing(fromId, toId));
     }
 }

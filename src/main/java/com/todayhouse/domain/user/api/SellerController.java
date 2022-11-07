@@ -17,14 +17,14 @@ public class SellerController {
     private final SellerService service;
 
     @PostMapping
-    public BaseResponse saveSeller(@Valid @RequestBody SellerRequest request) {
+    public BaseResponse<SellerResponse> saveSeller(@Valid @RequestBody SellerRequest request) {
         Seller seller = service.saveSellerRequest(request);
-        return new BaseResponse(new SellerResponse(seller));
+        return new BaseResponse<>(new SellerResponse(seller));
     }
 
     @GetMapping("/{id}")
-    public BaseResponse findSeller(@PathVariable Long id) {
+    public BaseResponse<SellerResponse> findSeller(@PathVariable Long id) {
         Seller seller = service.findSeller(id);
-        return new BaseResponse(new SellerResponse(seller));
+        return new BaseResponse<>(new SellerResponse(seller));
     }
 }

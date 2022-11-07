@@ -2,14 +2,12 @@ package com.todayhouse.domain.product.domain;
 
 import com.todayhouse.domain.category.domain.Category;
 import com.todayhouse.domain.product.dto.request.ProductUpdateRequest;
-import com.todayhouse.domain.product.exception.SellerNotSettingException;
 import com.todayhouse.domain.user.domain.Seller;
 import com.todayhouse.global.common.BaseTimeEntity;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
