@@ -1,6 +1,5 @@
 package com.todayhouse.domain.review.dao;
 
-import com.todayhouse.domain.product.domain.Product;
 import com.todayhouse.domain.review.domain.Review;
 import com.todayhouse.domain.review.dto.ReviewRating;
 import com.todayhouse.domain.user.domain.User;

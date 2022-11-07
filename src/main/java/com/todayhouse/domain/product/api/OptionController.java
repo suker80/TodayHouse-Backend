@@ -26,83 +26,83 @@ public class OptionController {
     private final OptionService optionService;
 
     @PostMapping("/parent")
-    public BaseResponse saveParentOption(@Valid @RequestBody ParentOptionSaveRequest request) {
+    public BaseResponse<ParentOptionResponse> saveParentOption(@Valid @RequestBody ParentOptionSaveRequest request) {
         ParentOption parentOption = optionService.saveParentOption(request);
-        return new BaseResponse(new ParentOptionResponse(parentOption, false));
+        return new BaseResponse<>(new ParentOptionResponse(parentOption, false));
     }
 
     @PostMapping("/child")
-    public BaseResponse saveChildOption(@Valid @RequestBody ChildOptionSaveRequest request) {
+    public BaseResponse<ChildOptionResponse> saveChildOption(@Valid @RequestBody ChildOptionSaveRequest request) {
         ChildOption childOption = optionService.saveChildOption(request);
-        return new BaseResponse(new ChildOptionResponse(childOption));
+        return new BaseResponse<>(new ChildOptionResponse(childOption));
     }
 
     @PostMapping("/selection")
-    public BaseResponse saveSelectionOption(@Valid @RequestBody SelectionOptionSaveRequest request) {
+    public BaseResponse<SelectionOptionResponse> saveSelectionOption(@Valid @RequestBody SelectionOptionSaveRequest request) {
         SelectionOption selectionOption = optionService.saveSelectionOption(request);
-        return new BaseResponse(new SelectionOptionResponse(selectionOption));
+        return new BaseResponse<>(new SelectionOptionResponse(selectionOption));
     }
 
     @GetMapping("/parents")
-    public BaseResponse findParentOptions(@RequestParam Long productId) {
+    public BaseResponse<Set<ParentOptionResponse>> findParentOptions(@RequestParam Long productId) {
         Set<ParentOption> parents = optionService.findParentOptionsByProductId(productId);
         Set<ParentOptionResponse> response = Optional.ofNullable(parents)
                 .orElseGet(Collections::emptySet).stream().filter(Objects::nonNull)
                 .map(parentOption -> new ParentOptionResponse(parentOption, false)).collect(Collectors.toSet());
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/children")
-    public BaseResponse findChildOptions(@RequestParam Long parentId) {
+    public BaseResponse<Set<ChildOptionResponse>> findChildOptions(@RequestParam Long parentId) {
         Set<ChildOption> parents = optionService.findChildOptionsByParentId(parentId);
         Set<ChildOptionResponse> response = Optional.ofNullable(parents)
                 .orElseGet(Collections::emptySet).stream().filter(Objects::nonNull)
-                .map(childOption -> new ChildOptionResponse(childOption)).collect(Collectors.toSet());
-        return new BaseResponse(response);
+                .map(ChildOptionResponse::new).collect(Collectors.toSet());
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/selections")
-    public BaseResponse findSelectionOptions(@RequestParam Long productId) {
+    public BaseResponse<Set<SelectionOptionResponse>> findSelectionOptions(@RequestParam Long productId) {
         Set<SelectionOption> parents = optionService.findSelectionOptionsByProductId(productId);
         Set<SelectionOptionResponse> response = Optional.ofNullable(parents)
                 .orElseGet(Collections::emptySet).stream().filter(Objects::nonNull)
-                .map(selectionOption -> new SelectionOptionResponse(selectionOption)).collect(Collectors.toSet());
-        return new BaseResponse(response);
+                .map(SelectionOptionResponse::new).collect(Collectors.toSet());
+        return new BaseResponse<>(response);
     }
 
     @PutMapping("/parent")
-    public BaseResponse updateParentOption(@Valid @RequestBody ParentOptionUpdateRequest request) {
+    public BaseResponse<ParentOptionResponse> updateParentOption(@Valid @RequestBody ParentOptionUpdateRequest request) {
         ParentOption parentOption = optionService.updateParentOption(request);
-        return new BaseResponse(new ParentOptionResponse(parentOption, false));
+        return new BaseResponse<>(new ParentOptionResponse(parentOption, false));
     }
 
     @PutMapping("/child")
-    public BaseResponse updateChildOption(@Valid @RequestBody ChildOptionUpdateRequest request) {
+    public BaseResponse<ChildOptionResponse> updateChildOption(@Valid @RequestBody ChildOptionUpdateRequest request) {
         ChildOption childOption = optionService.updateChildOption(request);
-        return new BaseResponse(new ChildOptionResponse(childOption));
+        return new BaseResponse<>(new ChildOptionResponse(childOption));
     }
 
     @PutMapping("/selection")
-    public BaseResponse updateSelectionOption(@Valid @RequestBody SelectionOptionUpdateRequest request) {
+    public BaseResponse<SelectionOptionResponse> updateSelectionOption(@Valid @RequestBody SelectionOptionUpdateRequest request) {
         SelectionOption selectionOption = optionService.updateSelectionOption(request);
-        return new BaseResponse(new SelectionOptionResponse(selectionOption));
+        return new BaseResponse<>(new SelectionOptionResponse(selectionOption));
     }
 
     @DeleteMapping("/parent/{id}")
-    public BaseResponse deleteParentOption(@PathVariable Long id) {
+    public BaseResponse<String> deleteParentOption(@PathVariable Long id) {
         optionService.deleteParentOptionById(id);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 
     @DeleteMapping("/child/{id}")
-    public BaseResponse deleteChildOption(@PathVariable Long id) {
+    public BaseResponse<String> deleteChildOption(@PathVariable Long id) {
         optionService.deleteChildOptionById(id);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 
     @DeleteMapping("/selection/{id}")
-    public BaseResponse deleteSelectionOption(@PathVariable Long id) {
+    public BaseResponse<String> deleteSelectionOption(@PathVariable Long id) {
         optionService.deleteSelectionOptionById(id);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 }

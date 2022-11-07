@@ -115,7 +115,7 @@ test {
     finalizedBy 'jacocoTestReport'
 }
 
-processResources.dependsOn('copySubmodule')
+//processResources.dependsOn('copySubmodule')
 
 task copySubmodule(type: Copy) {
     from './TodayHouse-Secret'

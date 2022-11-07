@@ -22,41 +22,41 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public BaseResponse saveCategory(@Valid @RequestBody CategorySaveRequest request) {
+    public BaseResponse<CategorySaveResponse> saveCategory(@Valid @RequestBody CategorySaveRequest request) {
         Category category = categoryService.addCategory(request);
-        return new BaseResponse(new CategorySaveResponse(category));
+        return new BaseResponse<>(new CategorySaveResponse(category));
     }
 
     @GetMapping
-    public BaseResponse findAll() {
+    public BaseResponse<List<CategoryResponse>> findAll() {
         List<Category> categories = categoryService.findAllWithChildrenAll();
         List<CategoryResponse> responses = CategoryResponse.createCategoryResponsesAll(categories);
-        return new BaseResponse(responses);
+        return new BaseResponse<>(responses);
     }
 
     // 해당 카테고리의 모든 하위 카테고리
     @GetMapping("/{categoryName}")
-    public BaseResponse findWithSubAll(@PathVariable String categoryName) {
+    public BaseResponse<CategoryResponse> findWithSubAll(@PathVariable String categoryName) {
         List<Category> categories = categoryService.findOneByNameWithChildrenAll(categoryName);
         CategoryResponse response = CategoryResponse.createCategoryResponse(categories);
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/path/{categoryName}")
-    public BaseResponse findRootPath(@PathVariable String categoryName) {
+    public BaseResponse<CategoryPathResponse> findRootPath(@PathVariable String categoryName) {
         List<Category> categoryPath = categoryService.findRootPath(categoryName);
-        return new BaseResponse(new CategoryPathResponse(categoryPath));
+        return new BaseResponse<>(new CategoryPathResponse(categoryPath));
     }
 
     @PatchMapping
-    public BaseResponse updateCategoryName(@Valid @RequestBody CategoryUpdateRequest request) {
+    public BaseResponse<CategoryUpdateResponse> updateCategoryName(@Valid @RequestBody CategoryUpdateRequest request) {
         Category category = categoryService.updateCategory(request);
-        return new BaseResponse(new CategoryUpdateResponse(category));
+        return new BaseResponse<>(new CategoryUpdateResponse(category));
     }
 
     @DeleteMapping("/{categoryName}")
-    public BaseResponse deleteCategory(@PathVariable String categoryName) {
+    public BaseResponse<String> deleteCategory(@PathVariable String categoryName) {
         categoryService.deleteCategory(categoryName);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 }

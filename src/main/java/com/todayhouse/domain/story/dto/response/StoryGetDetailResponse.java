@@ -1,6 +1,9 @@
 package com.todayhouse.domain.story.dto.response;
 
-import com.todayhouse.domain.story.domain.*;
+import com.todayhouse.domain.story.domain.FamilyType;
+import com.todayhouse.domain.story.domain.ResiType;
+import com.todayhouse.domain.story.domain.Story;
+import com.todayhouse.domain.story.domain.StyleType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

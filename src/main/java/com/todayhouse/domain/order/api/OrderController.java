@@ -31,8 +31,8 @@ public class OrderController {
     @PostMapping
     public BaseResponse<List<Long>> saveOrders(@Valid @RequestBody List<OrderSaveRequest> orderRequests) {
         List<Orders> orders = orderService.saveOrders(orderRequests);
-        List<Long> ids = orders.stream().map(o -> o.getId()).collect(Collectors.toList());
-        return new BaseResponse(ids);
+        List<Long> ids = orders.stream().map(Orders::getId).collect(Collectors.toList());
+        return new BaseResponse<>(ids);
     }
 
     /*
@@ -40,11 +40,11 @@ public class OrderController {
     jwt를 이용해 유저검색
     */
     @GetMapping
-    public BaseResponse<Page<OrderResponse>> findUserOrdersPaging(Pageable pageable) {
+    public BaseResponse<PageDto<OrderResponse>> findUserOrdersPaging(Pageable pageable) {
         Page<Orders> orders = orderService.findOrders(pageable);
         PageDto<OrderResponse> response = new PageDto<>(orders.map(order ->
                 new OrderResponse(order, fileService.changeFileNameToUrl(order.getProduct().getImage()))));
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/{orderId}")
@@ -52,18 +52,18 @@ public class OrderController {
         Delivery delivery = deliveryService.findDeliveryByOrderIdWithOrder(orderId);
         String imageUrl = fileService.changeFileNameToUrl(delivery.getOrder().getProduct().getImage());
         OrderResponse response = new OrderResponse(delivery, imageUrl);
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     @PutMapping("/cancel/{orderId}")
-    public BaseResponse cancelOrder(@PathVariable Long orderId) {
+    public BaseResponse<String> cancelOrder(@PathVariable Long orderId) {
         orderService.cancelOrder(orderId);
-        return new BaseResponse("취소되었습니다.");
+        return new BaseResponse<>("취소되었습니다.");
     }
 
     @PutMapping("/complete/{orderId}")
-    public BaseResponse completeOrder(@PathVariable Long orderId) {
+    public BaseResponse<String> completeOrder(@PathVariable Long orderId) {
         orderService.completeOrder(orderId);
-        return new BaseResponse("완료되었습니다.");
+        return new BaseResponse<>("완료되었습니다.");
     }
 }
