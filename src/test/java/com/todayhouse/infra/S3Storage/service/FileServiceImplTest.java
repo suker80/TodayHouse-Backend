@@ -3,7 +3,9 @@ package com.todayhouse.infra.S3Storage.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.todayhouse.global.error.BaseException;
 import com.todayhouse.infra.S3Storage.exception.InvalidUrlException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -116,5 +118,13 @@ class FileServiceImplTest {
         assertThrows(InvalidUrlException.class, () -> fileService.changeUrlToFileName(url1));
         assertThrows(InvalidUrlException.class, () -> fileService.changeUrlToFileName(url2));
         assertThrows(InvalidUrlException.class, () -> fileService.changeUrlToFileName(url3));
+    }
+
+    @Test
+    @DisplayName("잘못된 파일이름")
+    void InvalidFileNameException(){
+        String fileName = "InvalidFileName";
+        MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[10]);
+        Assertions.assertThrows(BaseException.class, () -> fileService.uploadImage(multipartFile));
     }
 }

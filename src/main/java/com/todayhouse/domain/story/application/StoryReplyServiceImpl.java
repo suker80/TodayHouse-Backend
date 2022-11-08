@@ -1,7 +1,6 @@
 package com.todayhouse.domain.story.application;
 
 import com.todayhouse.domain.likes.dao.LikesStoryReplyRepository;
-import com.todayhouse.domain.likes.domain.LikesStoryReply;
 import com.todayhouse.domain.story.dao.StoryReplyRepository;
 import com.todayhouse.domain.story.dao.StoryRepository;
 import com.todayhouse.domain.story.domain.Story;
@@ -13,7 +12,6 @@ import com.todayhouse.domain.story.exception.ReplyNotFoundException;
 import com.todayhouse.domain.user.dao.UserRepository;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.domain.user.exception.UserNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +20,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 import static com.todayhouse.global.error.BaseResponseStatus.REPLY_NOT_FOUND;
-import static com.todayhouse.global.error.BaseResponseStatus.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

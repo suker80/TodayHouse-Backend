@@ -65,7 +65,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<ProductResponse> findProductWithImages(@PathVariable Long id) {
+    public BaseResponse<ProductResponse> findProductWithImages(@AuthenticationPrincipal User user,@PathVariable Long id) {
         Product product = productService.findByIdWithOptionsAndSeller(id);
 
         List<String> imageUrls = imageService.findProductImageFileNamesByProductId(id).stream().
