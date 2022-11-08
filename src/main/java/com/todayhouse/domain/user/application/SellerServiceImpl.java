@@ -1,6 +1,5 @@
 package com.todayhouse.domain.user.application;
 
-import com.todayhouse.domain.user.dao.SellerRepository;
 import com.todayhouse.domain.user.dao.UserRepository;
 import com.todayhouse.domain.user.domain.Seller;
 import com.todayhouse.domain.user.domain.User;

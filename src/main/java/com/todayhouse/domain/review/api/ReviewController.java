@@ -33,7 +33,7 @@ public class ReviewController {
     public BaseResponse<Long> saveReview(@RequestPart(value = "file", required = false) MultipartFile multipartFile,
                                          @RequestPart(value = "request") @Valid ReviewSaveRequest reviewSaveRequest) {
         Long saveId = reviewService.saveReview(multipartFile, reviewSaveRequest.toEntity(), reviewSaveRequest.getProductId());
-        return new BaseResponse(saveId);
+        return new BaseResponse<>(saveId);
     }
 
     //?size=2&page=0&sort=createdAt,DESC&isImage=true
@@ -44,7 +44,7 @@ public class ReviewController {
         Page<Review> reviews = reviewService.findReviews(reviewSearchRequest, pageable);
         List<ReviewLike> reviewLikes = reviewLikeService.findMyReviewLikesInReviews(reviews.getContent());
         Map<Long, Boolean> liked = getLikedMap(reviewLikes);
-        return new BaseResponse(new PageDto<>(reviews.map(review ->
+        return new BaseResponse<>(new PageDto<>(reviews.map(review ->
                 new ReviewResponse(review, !liked.getOrDefault(review.getId(), false)))));
     }
 
@@ -67,21 +67,21 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    public BaseResponse deleteReview(@PathVariable("reviewId") Long reviewId) {
+    public BaseResponse<String> deleteReview(@PathVariable("reviewId") Long reviewId) {
         reviewService.deleteReview(reviewId);
-        return new BaseResponse("리뷰가 삭제되었습니다.");
+        return new BaseResponse<>("리뷰가 삭제되었습니다.");
     }
 
     @PostMapping("/like/{reviewId}")
     public BaseResponse<Long> saveReviewLike(@PathVariable("reviewId") Long reviewId) {
         Long id = reviewLikeService.saveReviewLike(reviewId);
-        return new BaseResponse(id);
+        return new BaseResponse<>(id);
     }
 
     @DeleteMapping("/like/{reviewId}")
-    public BaseResponse<Long> deleteReviewLike(@PathVariable("reviewId") Long reviewId) {
+    public BaseResponse<String> deleteReviewLike(@PathVariable("reviewId") Long reviewId) {
         reviewLikeService.deleteReviewLike(reviewId);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 }
 

@@ -1,11 +1,8 @@
 package com.todayhouse.domain.user.domain;
 
-import com.todayhouse.domain.product.domain.Product;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter

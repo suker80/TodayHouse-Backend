@@ -11,6 +11,7 @@ import com.todayhouse.domain.user.dto.response.UserSignupResponse;
 import com.todayhouse.domain.user.exception.UserNotFoundException;
 import com.todayhouse.global.common.BaseResponse;
 import com.todayhouse.global.config.cookie.CookieUtils;
+import com.todayhouse.global.error.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -28,41 +29,41 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/emails/{email}")
-    public BaseResponse findUser(@PathVariable String email) {
+    public BaseResponse<UserFindResponse> findUser(@PathVariable String email) {
         User user = userService.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        return new BaseResponse(new UserFindResponse(user));
+        return new BaseResponse<>(new UserFindResponse(user));
     }
 
     @GetMapping("/emails/{email}/exist")
-    public BaseResponse existEmail(@PathVariable String email) {
+    public BaseResponse<Boolean> existEmail(@PathVariable String email) {
         log.info("이메일: {}", email);
         boolean exist = userService.existByEmail(email);
-        return new BaseResponse(exist);
+        return new BaseResponse<>(exist);
     }
 
     @GetMapping("/nicknames/{nickname}/exist")
-    public BaseResponse existNickname(@PathVariable String nickname) {
+    public BaseResponse<Boolean> existNickname(@PathVariable String nickname) {
         log.info("닉네임: {}", nickname);
         boolean exist = userService.existByNickname(nickname);
-        return new BaseResponse(exist);
+        return new BaseResponse<>(exist);
     }
 
     // 회원가입
     // email 인증 후 auth_user 쿠키가 있어야 가능
     @PostMapping("/signup")
-    public BaseResponse signup(@Valid @RequestBody UserSignupRequest request,
-                               HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    public BaseResponse<UserSignupResponse> signup(@Valid @RequestBody UserSignupRequest request,
+                                                   HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         log.info("이메일: {}, 닉네임: {}",
                 request.getEmail(), request.getNickname());
         UserSignupResponse response = new UserSignupResponse(userService.saveUser(request));
         CookieUtils.deleteCookie(servletRequest, servletResponse, "auth_user");
-        return new BaseResponse(response);
+        return new BaseResponse<>(response);
     }
 
     // 로그인
     @PostMapping("/login")
-    public BaseResponse login(@Valid @RequestBody UserLoginRequest request) {
-        return new BaseResponse(userService.login(request));
+    public BaseResponse<com.todayhouse.domain.user.dto.response.UserLoginResponse> login(@Valid @RequestBody UserLoginRequest request) {
+        return new BaseResponse<>(userService.login(request));
     }
 
     @PutMapping("/password/new")
@@ -70,7 +71,7 @@ public class UserController {
                                        HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         userService.updatePassword(request);
         CookieUtils.deleteCookie(servletRequest, servletResponse, "auth_user");
-        return new BaseResponse();
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
     @PostMapping("/info")
@@ -83,7 +84,7 @@ public class UserController {
                 .nickname(request.getNickname())
                 .introduction(request.getIntroduction()).build();
         userService.updateUserInfo(multipartFile, userRequest);
-        return new BaseResponse(true);
+        return new BaseResponse<>(true);
     }
 
     //api test용

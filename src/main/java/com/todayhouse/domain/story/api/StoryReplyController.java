@@ -2,7 +2,6 @@ package com.todayhouse.domain.story.api;
 
 import com.todayhouse.domain.story.application.StoryReplyService;
 import com.todayhouse.domain.story.dto.reqeust.ReplyCreateRequest;
-import com.todayhouse.domain.story.dto.reqeust.ReplyDeleteRequest;
 import com.todayhouse.domain.story.dto.response.ReplyCreateResponse;
 import com.todayhouse.domain.story.dto.response.ReplyGetResponse;
 import com.todayhouse.domain.user.domain.User;

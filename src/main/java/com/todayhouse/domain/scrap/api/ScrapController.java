@@ -23,31 +23,31 @@ public class ScrapController {
     @PostMapping("/{storyId}")
     public BaseResponse<Long> saveScrap(@PathVariable Long storyId) {
         Scrap scrap = scrapService.saveScrap(storyId);
-        return new BaseResponse(scrap.getId());
+        return new BaseResponse<>(scrap.getId());
     }
 
     @GetMapping("/{storyId}/exist")
     public BaseResponse<Boolean> isScraped(@PathVariable Long storyId) {
         Boolean scraped = scrapService.isScraped(storyId);
-        return new BaseResponse(scraped);
+        return new BaseResponse<>(scraped);
     }
 
     @DeleteMapping("/{storyId}")
     public BaseResponse<String> deleteScrap(@PathVariable Long storyId) {
         scrapService.deleteScrap(storyId);
-        return new BaseResponse("삭제되었습니다.");
+        return new BaseResponse<>("삭제되었습니다.");
     }
 
     @GetMapping("/{storyId}/count")
     public BaseResponse<Long> countStoryScrap(@PathVariable Long storyId) {
         Long count = scrapService.countScrapByStoryId(storyId);
-        return new BaseResponse(count);
+        return new BaseResponse<>(count);
     }
 
     @GetMapping("/my/count")
     public BaseResponse<Long> countMyScrap() {
         Long count = scrapService.countMyScrap();
-        return new BaseResponse(count);
+        return new BaseResponse<>(count);
     }
 
     @GetMapping("/my")

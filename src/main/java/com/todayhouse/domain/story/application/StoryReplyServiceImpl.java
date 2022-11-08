@@ -7,13 +7,13 @@ import com.todayhouse.domain.story.dao.StoryRepository;
 import com.todayhouse.domain.story.domain.Story;
 import com.todayhouse.domain.story.domain.StoryReply;
 import com.todayhouse.domain.story.dto.reqeust.ReplyCreateRequest;
-import com.todayhouse.domain.story.dto.reqeust.ReplyDeleteRequest;
 import com.todayhouse.domain.story.dto.response.ReplyCreateResponse;
 import com.todayhouse.domain.story.dto.response.ReplyGetResponse;
 import com.todayhouse.domain.story.exception.ReplyNotFoundException;
 import com.todayhouse.domain.user.dao.UserRepository;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.domain.user.exception.UserNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.swing.text.html.Option;
-import java.util.Optional;
-import java.util.Set;
 
 import static com.todayhouse.global.error.BaseResponseStatus.REPLY_NOT_FOUND;
 import static com.todayhouse.global.error.BaseResponseStatus.USER_NOT_FOUND;
