@@ -122,9 +122,16 @@ class FileServiceImplTest {
 
     @Test
     @DisplayName("잘못된 파일이름")
-    void InvalidFileNameException(){
+    void InvalidFileNameException() {
         String fileName = "InvalidFileName";
         MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[10]);
         Assertions.assertThrows(BaseException.class, () -> fileService.uploadImage(multipartFile));
+    }
+
+    @Test
+    @DisplayName("이미지 가져오기")
+    void getImage() {
+        String fileName = "f5e1526d-8678-4ae5-93ee-2d1bfc972934.png";
+        Assertions.assertNotNull(fileService.getImage(fileName));
     }
 }

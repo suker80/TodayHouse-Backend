@@ -7,7 +7,6 @@ import com.todayhouse.domain.likes.dto.UnLikesRequest;
 import com.todayhouse.domain.likes.dto.UnLikesResponse;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.global.common.BaseResponse;
-import com.todayhouse.global.error.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +29,7 @@ public class LikesController {
                 return new BaseResponse<>(likes);
             }
         }
-        throw new RuntimeException();
+        return null;
     }
 
     @DeleteMapping("/likes")
@@ -41,7 +40,6 @@ public class LikesController {
                 return new BaseResponse<>(unlikes);
             }
         }
-
-        throw new RuntimeException();
+        return null;
     }
 }
