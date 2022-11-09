@@ -3,13 +3,13 @@ package com.todayhouse.domain.story.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.todayhouse.IntegrationBase;
+import com.todayhouse.domain.image.domain.StoryImage;
 import com.todayhouse.domain.scrap.dao.ScrapRepository;
 import com.todayhouse.domain.scrap.domain.Scrap;
 import com.todayhouse.domain.story.dao.StoryReplyRepository;
 import com.todayhouse.domain.story.dao.StoryRepository;
 import com.todayhouse.domain.story.domain.*;
 import com.todayhouse.domain.story.dto.reqeust.ReplyCreateRequest;
-import com.todayhouse.domain.story.dto.reqeust.ReplyDeleteRequest;
 import com.todayhouse.domain.story.dto.reqeust.StoryCreateRequest;
 import com.todayhouse.domain.story.dto.response.StoryGetDetailResponse;
 import com.todayhouse.domain.user.dao.UserRepository;
@@ -19,6 +19,7 @@ import com.todayhouse.domain.user.domain.Seller;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.global.common.BaseResponse;
 import com.todayhouse.global.config.jwt.JwtTokenProvider;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -80,8 +81,9 @@ class StoryControllerTest extends IntegrationBase {
                 .seller(seller)
                 .build());
 
-        jwt = provider.createToken("admin@test.com", Collections.singletonList(Role.USER));
+        jwt = provider.createToken("admin@test.com", Collections.singletonList(Role.ADMIN));
         s1 = Story.builder().title("제목").content("내용").category(Story.Category.STORY).user(user).build();
+        List<StoryImage> images = s1.getImages();
         s1 = storyRepository.save(s1);
         r1 = StoryReply.builder().story(s1).user(user).content("r1").build();
         r2 = StoryReply.builder().story(s1).user(user).content("r2").build();
@@ -98,7 +100,7 @@ class StoryControllerTest extends IntegrationBase {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "foo.jpg", "image/jpeg", "테스트".getBytes(StandardCharsets.UTF_8));
 
 
-        StoryCreateRequest storyCreateRequest = StoryCreateRequest.builder().title("제목").content("내용").category(Story.Category.STORY).build();
+        StoryCreateRequest storyCreateRequest = StoryCreateRequest.builder().user(user).title("제목").content("내용").category(Story.Category.STORY).build();
         MockMultipartFile request = new MockMultipartFile("request", "json", "application/json", objectMapper.writeValueAsBytes(storyCreateRequest));
         mockMvc.perform(
                 multipart(url)
@@ -239,4 +241,33 @@ class StoryControllerTest extends IntegrationBase {
         StoryGetDetailResponse story = objectMapper.registerModule(new JavaTimeModule()).convertValue(response.getResult(), StoryGetDetailResponse.class);
         assertThat(story.getViews()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("이미지 가져오기")
+    void getImage() throws Exception {
+        String fileName = "f5e1526d-8678-4ae5-93ee-2d1bfc972934.png";
+        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8080/stories/images/" + fileName)
+                        .header("Authorization", "Bearer " + jwt)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        Assertions.assertNotNull(mvcResult.getResponse());
+
+
+    }
+
+    @Test
+    @DisplayName("스토리 이름으로 찾기")
+    void findByUser() throws Exception {
+        String url = storyUrl + "user";
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("nickname", user.getNickname()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.numberOfElements", equalTo(1)));
+    }
+
 }
