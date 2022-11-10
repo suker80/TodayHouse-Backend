@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
     private void validateSignupRequest(UserSignupRequest request) {
         if (userRepository.existsByEmailAndNicknameIsNotNull(request.getEmail()))
-            throw new UserEmailExistExcecption();
+            throw new UserEmailExistException();
 
         checkNicknameDuplication(request.getNickname());
 
