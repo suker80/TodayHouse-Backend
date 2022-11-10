@@ -41,12 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findByNickname(String nickname) {
-        return userRepository.findByNickname(nickname);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public boolean existByEmail(String email) {
         return userRepository.existsByEmailAndNicknameIsNotNull(email);
     }
