@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,7 +74,7 @@ public class StoryController {
     }
 
     @PatchMapping("/{id}")
-    public BaseResponse<Long> update(@PathVariable Long id, @Valid @RequestBody StoryUpdateRequest request) {
+    public BaseResponse<Long> update(@PathVariable Long id, @Validated @RequestBody StoryUpdateRequest request) {
         return new BaseResponse<>(storyService.update(id, request));
     }
 
