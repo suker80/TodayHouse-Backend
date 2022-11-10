@@ -16,7 +16,6 @@ import com.todayhouse.domain.story.exception.StoryNotFoundException;
 import com.todayhouse.domain.user.application.CustomUserDetailService;
 import com.todayhouse.domain.user.dao.UserRepository;
 import com.todayhouse.domain.user.domain.User;
-import com.todayhouse.domain.user.exception.UserNotFoundException;
 import com.todayhouse.global.error.BaseException;
 import com.todayhouse.global.error.BaseResponseStatus;
 import com.todayhouse.infra.S3Storage.service.FileService;
@@ -51,13 +50,15 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public Long saveStory(List<MultipartFile> multipartFile, StoryCreateRequest request) {
-        List<String> fileName = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
         if (!multipartFile.isEmpty()) {
-            fileName = fileService.uploadImages(multipartFile);
+            fileNames = fileService.uploadImages(multipartFile);
         }
         User user = (User) customUserDetailService.loadUserByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Story story = storyRepository.save(request.toEntity(user));
-        imageService.save(fileName, story);
+        for (String filename : fileNames) {
+            story.getImages().add(new StoryImage(filename, story));
+        }
         return story.getId();
     }
 
@@ -116,11 +117,6 @@ public class StoryServiceImpl implements StoryService {
         Slice<Story> stories = storyRepository.findAllByUser(user, pageable);
         Map<Story, Boolean> scrapedStoriesMap = getScrapedStoriesMap(stories.getContent(), user);
         return stories.map(story -> new StoryGetListResponse(story, imageService.findThumbnailUrl(story), scrapedStoriesMap.getOrDefault(story, false)));
-    }
-
-    @Override
-    public List<String> getStoryImageFileNamesAll() {
-        return imageService.findStoryImageFileNamesAll();
     }
 
     @Override

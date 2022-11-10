@@ -27,8 +27,6 @@ public interface StoryService {
 
     Slice<StoryGetListResponse> findByUserNickname(String nickname, Pageable pageable);
 
-    List<String> getStoryImageFileNamesAll();
-
     List<String> getImageInStory(Long id);
 
     byte[] getImage(String fileName);
