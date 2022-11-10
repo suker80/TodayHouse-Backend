@@ -16,8 +16,8 @@ import com.todayhouse.domain.user.dto.response.UserFindResponse;
 import com.todayhouse.global.common.BaseResponse;
 import com.todayhouse.global.config.cookie.CookieUtils;
 import com.todayhouse.global.config.jwt.JwtTokenProvider;
+import com.todayhouse.global.error.BaseResponseStatus;
 import com.todayhouse.infra.S3Storage.service.FileServiceImpl;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +37,7 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,6 +49,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SuppressWarnings("NonAsciiCharacters")
 class UserControllerTest extends IntegrationBase {
     @Autowired
     MockMvc mockMvc;
@@ -109,6 +111,37 @@ class UserControllerTest extends IntegrationBase {
                         .cookie(cookie))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("중복 가입 ")
+    void DuplicateSignUp() throws Exception {
+        String email = "test@test.com";
+        String token = "101010";
+        UserSignupRequest request = UserSignupRequest.builder()
+                .email(email)
+                .password1("09876543")
+                .password2("09876543")
+                .nickname("test")
+                .agreePICU(true)
+                .agreePromotion(true)
+                .agreeTOS(true)
+                .agreeAge(true).build();
+        String url = "http://localhost:8080/users/signup";
+        String jwt = jwtTokenProvider.createToken(email, Collections.singletonList(Role.GUEST));
+
+        EmailVerificationToken emailToken = EmailVerificationToken.createEmailToken(email, token);
+        emailToken.expireToken();
+        emailVerificationTokenRepository.save(emailToken);
+
+        Cookie cookie = new Cookie("auth_user", CookieUtils.serialize(jwt));
+        mockMvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request))
+                        .cookie(cookie))
+                .andDo(print())
+                .andExpect(jsonPath("$.code").value(BaseResponseStatus.POST_USER_EXISTS_EMAIL.getCode()));
     }
 
     @Test
@@ -158,7 +191,7 @@ class UserControllerTest extends IntegrationBase {
     void findUser() throws Exception {
         String url = "http://localhost:8080/users/emails/test@test.com";
         User user = userRepository.findByEmail("test@test.com").orElse(null);
-        UserFindResponse userFindResponse = new UserFindResponse(user);
+        UserFindResponse userFindResponse = new UserFindResponse(Objects.requireNonNull(user));
         MvcResult mvcResult = mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -207,7 +240,7 @@ class UserControllerTest extends IntegrationBase {
                 .andReturn();
 
         User user = userRepository.findByEmail("test@test.com").orElse(null);
-        assertThat(new BCryptPasswordEncoder().matches(request.getPassword1(), user.getPassword())).isTrue();
+        assertThat(new BCryptPasswordEncoder().matches(request.getPassword1(), Objects.requireNonNull(user).getPassword())).isTrue();
     }
 
     @Test
@@ -293,7 +326,7 @@ class UserControllerTest extends IntegrationBase {
         User user = userRepository.findByEmail(email).orElse(null);
         assertTrue(objectMapper.convertValue(response.getResult(), Boolean.class));
         assertThat(request).usingRecursiveComparison().isEqualTo(user);
-        assertThat(user.getProfileImage()).isEqualTo(newImgUrl);
+        assertThat(Objects.requireNonNull(user).getProfileImage()).isEqualTo(newImgUrl);
     }
 
     @Test

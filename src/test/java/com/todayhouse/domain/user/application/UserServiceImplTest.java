@@ -9,6 +9,7 @@ import com.todayhouse.domain.user.dto.request.PasswordUpdateRequest;
 import com.todayhouse.domain.user.dto.request.UserLoginRequest;
 import com.todayhouse.domain.user.dto.request.UserSignupRequest;
 import com.todayhouse.domain.user.exception.SignupPasswordException;
+import com.todayhouse.domain.user.exception.UserEmailNotAuthException;
 import com.todayhouse.domain.user.exception.UserNicknameExistException;
 import com.todayhouse.domain.user.exception.WrongPasswordException;
 import com.todayhouse.global.config.jwt.JwtTokenProvider;
@@ -27,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -87,7 +89,7 @@ class UserServiceImplTest {
     @DisplayName("이메일 인증한 유저 저장")
     void saveUser() {
         String email = "test@test.com";
-        UserSignupRequest requset = UserSignupRequest.builder()
+        UserSignupRequest request = UserSignupRequest.builder()
                 .email(email).nickname("test").password1("12345678").password2("12345678")
                 .agreePICU(true).agreeAge(true).agreePromotion(true).agreeTOS(true)
                 .build();
@@ -96,23 +98,24 @@ class UserServiceImplTest {
                 .thenReturn(Optional.of(new EmailVerificationToken()));
         when(userRepository.save(any(User.class))).thenReturn(result);
 
-        assertThat(userService.saveUser(requset)).isEqualTo(result);
+        assertThat(userService.saveUser(request)).isEqualTo(result);
     }
 
     @Test
     @DisplayName("이메일 인증하지 않은 유저 저장")
     void saveUserError() {
         String email = "error@error.com";
-        UserSignupRequest requset = UserSignupRequest.builder()
+        UserSignupRequest request = UserSignupRequest.builder()
                 .email(email).nickname("test").password1("12345678").password2("12345678")
                 .agreePICU(true).agreeAge(true).agreePromotion(true).agreeTOS(true)
                 .build();
-        when(emailVerificationTokenRepository.findByEmailAndExpired(email, true))
-                .thenThrow(new IllegalArgumentException());
 
-        assertThrows(IllegalArgumentException.class, () -> userService.saveUser(requset));
+        EmailVerificationToken token = EmailVerificationToken.createEmailToken("error@error.com", "token");
+        token.expireToken();
+        emailVerificationTokenRepository.save(token);
+
+        assertThrows(UserEmailNotAuthException.class, () -> userService.saveUser(request));
     }
-
     @Test
     @DisplayName("정상 로그인")
     void login() {
@@ -123,7 +126,7 @@ class UserServiceImplTest {
                 .roles(Collections.singletonList(Role.USER)).build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.ofNullable(findUser));
-        when(bCryptPasswordEncoder.matches(request.getPassword(), findUser.getPassword())).thenReturn(true);
+        when(bCryptPasswordEncoder.matches(request.getPassword(), Objects.requireNonNull(findUser).getPassword())).thenReturn(true);
         when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn(jwt);
 
         assertThat(userService.login(request).getId()).isEqualTo(findUser.getId());
@@ -139,7 +142,7 @@ class UserServiceImplTest {
                 .roles(Collections.singletonList(Role.USER)).build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.ofNullable(findUser));
-        when(bCryptPasswordEncoder.matches(request.getPassword(), findUser.getPassword())).thenReturn(false);
+        when(bCryptPasswordEncoder.matches(request.getPassword(), Objects.requireNonNull(findUser).getPassword())).thenReturn(false);
 
         assertThrows(WrongPasswordException.class, () -> userService.login(request));
     }
@@ -156,13 +159,12 @@ class UserServiceImplTest {
         checkEmailInvalidation(email);
 
         userService.updatePassword(request);
-        assertThat(new BCryptPasswordEncoder().matches(request.getPassword1(), user.getPassword())).isTrue();
+        assertThat(new BCryptPasswordEncoder().matches(request.getPassword1(), Objects.requireNonNull(user).getPassword())).isTrue();
     }
 
     @Test
     @DisplayName("비밀번호 확인이 다름")
     void passwordError() {
-        String email = "test@test.com";
         PasswordUpdateRequest request = PasswordUpdateRequest.builder()
                 .password1("abcde").password2("abcdea")
                 .build();
