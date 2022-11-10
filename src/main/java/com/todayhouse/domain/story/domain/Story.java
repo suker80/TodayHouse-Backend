@@ -4,7 +4,6 @@ import com.todayhouse.domain.image.domain.StoryImage;
 import com.todayhouse.domain.likes.domain.LikesStory;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.global.common.BaseTimeEntity;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +17,18 @@ import java.util.Set;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Story extends BaseTimeEntity {
+
+    public void update(String title, String content, Category category, FamilyType familyType, ResiType resiType, Integer floorSpace, StyleType styleType) {
+        this.title = title;
+        this.content = content;
+        this.category = category;
+        this.familyType = familyType;
+        this.resiType = resiType;
+        this.floorSpace = floorSpace;
+        this.styleType = styleType;
+    }
 
     public enum Category {
         STORY, KNOWHOW
@@ -86,12 +95,6 @@ public class Story extends BaseTimeEntity {
         this.floorSpace = floorSpace;
         this.familyType = familyType;
         this.styleType = styleType;
-    }
-
-    public void update(String title, String content, Category category) {
-        this.title = title;
-        this.content = content;
-        this.category = category;
     }
 
     public void increaseView() {

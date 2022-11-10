@@ -136,7 +136,15 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public Long update(Long id, StoryUpdateRequest request) {
         Story story = storyRepository.findById(id).orElseThrow(StoryNotFoundException::new);
-        story.update(request.getTitle(), request.getContent(), request.getCategory());
+        story.update(
+                request.getTitle(),
+                request.getContent(),
+                request.getCategory(),
+                request.getFamilyType(),
+                request.getResiType(),
+                request.getFloorSpace(),
+                request.getStyleType()
+        );
         return id;
     }
 

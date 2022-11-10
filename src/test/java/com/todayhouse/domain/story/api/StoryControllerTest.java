@@ -8,8 +8,10 @@ import com.todayhouse.domain.scrap.domain.Scrap;
 import com.todayhouse.domain.story.dao.StoryReplyRepository;
 import com.todayhouse.domain.story.dao.StoryRepository;
 import com.todayhouse.domain.story.domain.*;
+import com.todayhouse.domain.story.domain.Story.Category;
 import com.todayhouse.domain.story.dto.reqeust.ReplyCreateRequest;
 import com.todayhouse.domain.story.dto.reqeust.StoryCreateRequest;
+import com.todayhouse.domain.story.dto.reqeust.StoryUpdateRequest;
 import com.todayhouse.domain.story.dto.response.StoryGetDetailResponse;
 import com.todayhouse.domain.user.dao.UserRepository;
 import com.todayhouse.domain.user.domain.AuthProvider;
@@ -18,9 +20,9 @@ import com.todayhouse.domain.user.domain.Seller;
 import com.todayhouse.domain.user.domain.User;
 import com.todayhouse.global.common.BaseResponse;
 import com.todayhouse.global.config.jwt.JwtTokenProvider;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +39,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +52,9 @@ class StoryControllerTest extends IntegrationBase {
     StoryRepository storyRepository;
     @Autowired
     ScrapRepository scrapRepository;
+
+    @Autowired
+    EntityManager em;
 
     @Autowired
     StoryReplyRepository replyRepository;
@@ -81,7 +88,16 @@ class StoryControllerTest extends IntegrationBase {
                 .build());
 
         jwt = provider.createToken("admin@test.com", Collections.singletonList(Role.ADMIN));
-        s1 = Story.builder().title("제목").content("내용").category(Story.Category.STORY).user(user).build();
+        s1 = Story.builder()
+                .title("제목")
+                .content("내용")
+                .category(Category.STORY)
+                .user(user)
+                .familyType(FamilyType.NUCLEAR)
+                .floorSpace(10)
+                .resiType(ResiType.APARTMENT)
+                .styleType(StyleType.CLASSIC)
+                .build();
         s1 = storyRepository.save(s1);
         r1 = StoryReply.builder().story(s1).user(user).content("r1").build();
         r2 = StoryReply.builder().story(s1).user(user).content("r2").build();
@@ -250,7 +266,7 @@ class StoryControllerTest extends IntegrationBase {
                 .andDo(print())
                 .andReturn();
 
-        Assertions.assertNotNull(mvcResult.getResponse());
+        assertNotNull(mvcResult.getResponse());
 
 
     }
@@ -279,5 +295,33 @@ class StoryControllerTest extends IntegrationBase {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("스토리 업데이트")
+    void updateStory() throws Exception {
+        StoryUpdateRequest request = StoryUpdateRequest.builder()
+                .floorSpace(s1.getFloorSpace())
+                .familyType(FamilyType.EXTENDED)
+                .title(s1.getTitle())
+                .category(s1.getCategory())
+                .resiType(s1.getResiType())
+                .styleType(s1.getStyleType())
+                .content(s1.getContent())
+                .build();
+        assertNotEquals(s1.getFamilyType(), FamilyType.EXTENDED);
+        String url = storyUrl + s1.getId();
+
+        mockMvc.perform(patch(url)
+                        .header("Authorization", "Bearer " + jwt)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType("application/json"))
+                .andDo(print());
+
+        em.flush();
+        em.clear();
+        Story updateStory = storyRepository.findById(s1.getId()).orElseThrow();
+        assertEquals(updateStory.getFamilyType(), FamilyType.EXTENDED);
+        assertNotNull(updateStory.getTitle());
     }
 }
