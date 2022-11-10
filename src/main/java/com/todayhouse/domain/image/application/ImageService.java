@@ -1,12 +1,13 @@
 package com.todayhouse.domain.image.application;
 
+import com.todayhouse.domain.image.domain.StoryImage;
 import com.todayhouse.domain.product.domain.Product;
 import com.todayhouse.domain.story.domain.Story;
 
 import java.util.List;
 
 public interface ImageService {
-    void save(List<String> fileName, Story story);
+    List<StoryImage> save(List<String> fileName, Story story);
 
     void saveOne(String fileName, Story story);
 

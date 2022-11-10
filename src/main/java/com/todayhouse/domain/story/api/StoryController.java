@@ -62,11 +62,6 @@ public class StoryController {
         else return new BaseResponse<>(storyService.findByUserNickname(nickname, pageable));
     }
 
-    @GetMapping("/images")
-    public BaseResponse<List<String>> getStoryImageFileNamesAll() {
-        return new BaseResponse<>(storyService.getStoryImageFileNamesAll());
-    }
-
     @GetMapping("/{id}/images")
     public BaseResponse<List<String>> getImageInStory(@PathVariable Long id) {
         return new BaseResponse<>(storyService.getImageInStory(id));

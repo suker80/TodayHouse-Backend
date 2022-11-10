@@ -2,6 +2,7 @@ package com.todayhouse.domain.image.application;
 
 import com.todayhouse.domain.image.dao.ProductImageRepository;
 import com.todayhouse.domain.image.dao.StoryImageRepository;
+import com.todayhouse.domain.image.domain.Image;
 import com.todayhouse.domain.image.domain.ProductImage;
 import com.todayhouse.domain.image.domain.StoryImage;
 import com.todayhouse.domain.image.exception.ImageNotFoundException;
@@ -28,8 +29,8 @@ public class ImageServiceImpl implements ImageService {
     private final ProductImageRepository productImageRepository;
 
     @Override
-    public void save(List<String> fileNames, Story story) {
-        storyImageRepository.saveAll(
+    public List<StoryImage> save(List<String> fileNames, Story story) {
+        return storyImageRepository.saveAll(
                 Optional.ofNullable(fileNames).orElseGet(Collections::emptyList)
                         .stream().filter(Objects::nonNull)
                         .map(file -> new StoryImage(file, story))
@@ -57,7 +58,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public void deleteStoryImages(List<String> fileNames) {
-        fileNames.forEach(fileName -> storyImageRepository.deleteByFileName(fileName));
+        fileNames.forEach(storyImageRepository::deleteByFileName);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class ImageServiceImpl implements ImageService {
     @Transactional(readOnly = true)
     public List<String> findStoryImageFileNamesAll() {
         return storyImageRepository.findAll().stream()
-                .map(image -> image.getFileName())
+                .map(Image::getFileName)
                 .collect(Collectors.toList());
     }
 
@@ -101,7 +102,7 @@ public class ImageServiceImpl implements ImageService {
     @Transactional(readOnly = true)
     public List<String> findProductImageFileNamesByProductId(Long id) {
         return productImageRepository.findByProductId(id).stream()
-                .map(image -> image.getFileName())
+                .map(Image::getFileName)
                 .collect(Collectors.toList());
     }
 }
